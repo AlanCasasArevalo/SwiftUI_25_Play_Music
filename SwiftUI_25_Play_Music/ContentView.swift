@@ -130,6 +130,7 @@ extension ContentView {
         do {
             self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: songPath))
             self.audioPlayer.prepareToPlay()
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .allowAirPlay, .allowBluetooth, .allowBluetoothA2DP,.interruptSpokenAudioAndMixWithOthers])
         } catch let error {
             print(error.localizedDescription)
         }

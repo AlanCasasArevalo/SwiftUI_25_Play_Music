@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  SwiftUI_25_Play_Music
-//
-//  Created by Everis on 08/09/2020.
-//  Copyright © 2020 Alan. All rights reserved.
-//
 
 import SwiftUI
 

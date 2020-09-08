@@ -9,11 +9,13 @@ struct ContentView: View {
     
     @State private var songs = ["song1", "song2", "song3"]
     @State private var position = 0
-
+    
     @State private var title = ""
-    @State private var album = ""
+    @State private var album = "album1"
     @State private var albums = ["album1", "album2", "album3"]
-
+    
+    @State private var progress: CGFloat = 0
+    
     var body: some View {
         ZStack {
             Color.blue.edgesIgnoringSafeArea(.all)
@@ -25,6 +27,16 @@ struct ContentView: View {
                     .font(.system(.largeTitle, design: .rounded))
                     .foregroundColor(.white)
                     .bold()
+                
+                ZStack (alignment: .leading) {
+                    Capsule()
+                        .fill(Color.black.opacity(0.5))
+                    .frame(width: 350, height: 10)
+                    Capsule()
+                        .fill(Color.white)
+                        .frame(width: self.progress, height: 10)
+                }
+                
                 HStack {
                     Button(action: {
                         self.backward()
@@ -32,7 +44,6 @@ struct ContentView: View {
                         Image(systemName: "backward.fill")
                             .modifier(CustomButtonModifier())
                     }
-                    
                     Button(action: {
                         self.isPlaying.toggle()
                         if self.isPlaying {
@@ -56,6 +67,14 @@ struct ContentView: View {
                 self.title = self.getTitle(position: self.position)
                 self.album = self.getAlbum(position: self.position)
                 self.getSongToPlay(position: self.position)
+                
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                    if self.audioPlayer.isPlaying {
+                        let screen = UIScreen.main.bounds.width - 30
+                        let value = self.audioPlayer.currentTime / self.audioPlayer.duration
+                        self.progress = screen * CGFloat(value)
+                    }
+                }
             }
         }
     }

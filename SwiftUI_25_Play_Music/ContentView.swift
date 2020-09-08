@@ -9,12 +9,19 @@ struct ContentView: View {
     
     @State private var songs = ["song1", "song2", "song3"]
     @State private var position = 0
-    
+
+    @State private var title = ""
+    @State private var album = ""
+    @State private var albums = ["album1", "album2", "album3"]
+
     var body: some View {
         ZStack {
             Color.blue.edgesIgnoringSafeArea(.all)
             VStack {
-                Text("Hello, World!")
+                Image(self.album)
+                    .font(.system(.largeTitle, design: .rounded))
+                    .cornerRadius(20)
+                Text(self.title)
                     .font(.system(.largeTitle, design: .rounded))
                     .foregroundColor(.white)
                     .bold()
@@ -46,6 +53,8 @@ struct ContentView: View {
                     
                 }
             }.onAppear {
+                self.title = self.getTitle(position: self.position)
+                self.album = self.getAlbum(position: self.position)
                 self.getSongToPlay(position: self.position)
             }
         }
@@ -58,7 +67,13 @@ extension ContentView {
             self.audioPlayer.stop()
             position += 1
             getSongToPlay(position: position)
-            audioPlayer.play()
+            if self.isPlaying {
+                self.audioPlayer.play()
+            } else {
+                self.audioPlayer.pause()
+            }
+            title = getTitle(position: position)
+            album = getAlbum(position: position)
         }
     }
     
@@ -67,7 +82,13 @@ extension ContentView {
             self.audioPlayer.stop()
             position -= 1
             getSongToPlay(position: position)
-            audioPlayer.play()
+            if self.isPlaying {
+                self.audioPlayer.play()
+            } else {
+                self.audioPlayer.pause()
+            }
+            title = getTitle(position: position)
+            album = getAlbum(position: position)
         }
     }
     
@@ -81,6 +102,14 @@ extension ContentView {
         }
     }
     
+    func getTitle(position: Int) -> String {
+        return songs[position]
+    }
+
+    func getAlbum(position: Int) -> String {
+        return albums[position]
+    }
+
 }
 
 

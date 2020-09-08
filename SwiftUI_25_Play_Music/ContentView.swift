@@ -3,6 +3,9 @@ import SwiftUI
 import AVKit
 
 struct ContentView: View {
+    
+    @State private var audioPlayer: AVAudioPlayer!
+    
     var body: some View {
         ZStack {
             Color.blue.edgesIgnoringSafeArea(.all)
@@ -20,14 +23,14 @@ struct ContentView: View {
                     }
                     
                     Button(action: {
-                        
+                        self.audioPlayer.play()
                     }) {
                         Image(systemName: "play.fill")
                             .modifier(CustomButtonModifier())
                     }
                     
                     Button(action: {
-                        
+                        self.audioPlayer.pause()
                     }) {
                         Image(systemName: "pause.fill")
                             .modifier(CustomButtonModifier())
@@ -40,6 +43,14 @@ struct ContentView: View {
                             .modifier(CustomButtonModifier())
                     }
                     
+                }
+            }.onAppear {
+                guard let songPath = Bundle.main.path(forResource: "song1", ofType: "wav") else { return }
+                do {
+                    self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: songPath))
+                    self.audioPlayer.prepareToPlay()
+                } catch let error {
+                    print(error.localizedDescription)
                 }
             }
         }

@@ -7,6 +7,8 @@ struct ContentView: View {
     @State private var audioPlayer: AVAudioPlayer!
     @State private var isPlaying = false
     
+    @State private var isLoopRepeating = false
+    
     @State private var songs = ["song1", "song2", "song3"]
     @State private var position = 0
     
@@ -15,11 +17,21 @@ struct ContentView: View {
     @State private var albums = ["album1", "album2", "album3"]
     
     @State private var progress: CGFloat = 0
+    @State private var value: Double = 0
+    
+    let width = UIScreen.main.bounds.width - 40
+
     
     var body: some View {
         ZStack {
             Color.blue.edgesIgnoringSafeArea(.all)
             VStack {
+                
+                Toggle(isOn: $isLoopRepeating) {
+                    Text("Quieres que se repita hasta el infinito?")
+                }
+                .padding()
+                
                 Image(self.album)
                     .font(.system(.largeTitle, design: .rounded))
                     .cornerRadius(20)
@@ -31,7 +43,7 @@ struct ContentView: View {
                 ZStack (alignment: .leading) {
                     Capsule()
                         .fill(Color.black.opacity(0.5))
-                        .frame(width: 350, height: 10)
+                        .frame(width: width, height: 10)
                     Capsule()
                         .fill(Color.white)
                         .frame(width: self.progress, height: 10)
@@ -43,7 +55,7 @@ struct ContentView: View {
                                 })
                                 .onEnded({ value in
                                     let x = value.location.x
-                                    let screen = UIScreen.main.bounds.width - 30
+                                    let screen = self.width
                                     let percentage = x / screen
                                     self.audioPlayer.currentTime = Double(percentage) * self.audioPlayer.duration
                                 })
@@ -77,16 +89,30 @@ struct ContentView: View {
                     }
                     
                 }
-            }.onAppear {
-                self.title = self.getTitle(position: self.position)
-                self.album = self.getAlbum(position: self.position)
-                self.getSongToPlay(position: self.position)
+            }
+            .padding()
+            .onAppear {
+                
+                self.reset()
                 
                 Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
                     if self.audioPlayer.isPlaying {
                         let screen = UIScreen.main.bounds.width - 30
-                        let value = self.audioPlayer.currentTime / self.audioPlayer.duration
-                        self.progress = screen * CGFloat(value)
+                        self.value = self.audioPlayer.currentTime / self.audioPlayer.duration
+                        self.progress = screen * CGFloat(self.value)
+                    } else if self.value >= 0.99 && self.songs.count > self.position {
+                        if self.songs.count - 1 == self.position {
+                            if self.isLoopRepeating {
+                                self.position = 0
+                                self.reset()
+                                self.isPlaying = true
+                                self.audioPlayer.play()
+                            } else {
+                                self.isPlaying = false
+                            }
+                        } else {
+                            self.forward()
+                        }
                     }
                 }
             }
@@ -142,6 +168,13 @@ extension ContentView {
     
     func getAlbum(position: Int) -> String {
         return albums[position]
+    }
+    
+    func reset () {
+        self.title = self.getTitle(position: self.position)
+        self.album = self.getAlbum(position: self.position)
+        self.getSongToPlay(position: self.position)
+        self.value = 0
     }
     
 }

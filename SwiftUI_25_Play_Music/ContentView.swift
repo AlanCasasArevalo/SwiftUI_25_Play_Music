@@ -31,10 +31,24 @@ struct ContentView: View {
                 ZStack (alignment: .leading) {
                     Capsule()
                         .fill(Color.black.opacity(0.5))
-                    .frame(width: 350, height: 10)
+                        .frame(width: 350, height: 10)
                     Capsule()
                         .fill(Color.white)
                         .frame(width: self.progress, height: 10)
+                        .gesture(
+                            DragGesture()
+                                .onChanged({ value in
+                                    let x = value.location.x
+                                    self.progress = x
+                                })
+                                .onEnded({ value in
+                                    let x = value.location.x
+                                    let screen = UIScreen.main.bounds.width - 30
+                                    let percentage = x / screen
+                                    self.audioPlayer.currentTime = Double(percentage) * self.audioPlayer.duration
+                                })
+                    )
+                    
                 }
                 
                 HStack {
@@ -124,11 +138,11 @@ extension ContentView {
     func getTitle(position: Int) -> String {
         return songs[position]
     }
-
+    
     func getAlbum(position: Int) -> String {
         return albums[position]
     }
-
+    
 }
 
 

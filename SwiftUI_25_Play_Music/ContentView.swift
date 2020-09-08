@@ -7,6 +7,9 @@ struct ContentView: View {
     @State private var audioPlayer: AVAudioPlayer!
     @State private var isPlaying = false
     
+    @State private var songs = ["song1", "song2", "song3"]
+    @State private var position = 0
+    
     var body: some View {
         ZStack {
             Color.blue.edgesIgnoringSafeArea(.all)
@@ -17,7 +20,7 @@ struct ContentView: View {
                     .bold()
                 HStack {
                     Button(action: {
-                        
+                        self.backward()
                     }) {
                         Image(systemName: "backward.fill")
                             .modifier(CustomButtonModifier())
@@ -35,7 +38,7 @@ struct ContentView: View {
                             .modifier(CustomButtonModifier())
                     }
                     Button(action: {
-                        
+                        self.forward()
                     }) {
                         Image(systemName: "forward.fill")
                             .modifier(CustomButtonModifier())
@@ -43,17 +46,43 @@ struct ContentView: View {
                     
                 }
             }.onAppear {
-                guard let songPath = Bundle.main.path(forResource: "song1", ofType: "wav") else { return }
-                do {
-                    self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: songPath))
-                    self.audioPlayer.prepareToPlay()
-                } catch let error {
-                    print(error.localizedDescription)
-                }
+                self.getSongToPlay(position: self.position)
             }
         }
     }
 }
+
+extension ContentView {
+    func forward () {
+        if songs.count - 1 != position {
+            self.audioPlayer.stop()
+            position += 1
+            getSongToPlay(position: position)
+            audioPlayer.play()
+        }
+    }
+    
+    func backward () {
+        if position > 0 {
+            self.audioPlayer.stop()
+            position -= 1
+            getSongToPlay(position: position)
+            audioPlayer.play()
+        }
+    }
+    
+    func getSongToPlay(position: Int) {
+        guard let songPath = Bundle.main.path(forResource: self.songs[position], ofType: "wav") else { return }
+        do {
+            self.audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: songPath))
+            self.audioPlayer.prepareToPlay()
+        } catch let error {
+            print(error.localizedDescription)
+        }
+    }
+    
+}
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
